@@ -20,4 +20,5 @@ from student import views
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('students/', views.get_students),  # 获取全部学生信息
+    path('students/query/', views.query_students),  # 查询学生信息
 ]
