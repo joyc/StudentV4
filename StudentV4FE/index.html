@@ -116,7 +116,7 @@
 								</el-col>
 							</el-row>
 							<!-- 弹出框显示学生详细信息 -->
-							<el-dialog title="学生明细" :visible.sync="dialogVisible" width="50%" :close-on-click-modal="false">
+							<el-dialog title="学生明细" :visible.sync="dialogVisible" width="50%" :close-on-click-modal="false" @close="closeDialogForm()">
 								<el-form v-model="studentForm" :inline="true" style="margin-left: 20px" label-width="110px" label-position="right" size="mini">
 									<el-form-item label="学号:">
 										<el-input v-model="studentForm.sno" suffix-icon="el-icon-edit"></el-input>
@@ -146,7 +146,7 @@
 								</el-form>
 								<span slot="footer" class="dialog-footer">
 									<el-button type="primary" size="mini">确 定</el-button>
-								    <el-button type="info" size="mini">取 消</el-button>
+								    <el-button type="info" size="mini" @click="closeDialogForm()">取 消</el-button>
 								  </span>
 							</el-dialog>
 						</el-main>

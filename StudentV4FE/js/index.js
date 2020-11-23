@@ -121,8 +121,24 @@ const app = new Vue({
 		 viewStudent(row){
 			this.dialogVisible = true;
 			// console.log(row);
-			//赋值
-			this.studentForm = row;
+			//赋值 (浅拷贝有问题)
+			// this.studentForm = row;
+			//深拷贝方法：
+			// this.studentForm.sno = row.sno;
+			this.studentForm = JSON.parse(JSON.stringify(row))
+		},
+		//关闭弹出框表单
+		closeDialogForm(){
+			//清空
+			this.studentForm.sno = '';
+			this.studentForm.name = '';
+			this.studentForm.gender = '';
+			this.studentForm.birthday = '';
+			this.studentForm.mobile = '';
+			this.studentForm.email = '';
+			this.studentForm.address = '';
+			//关闭
+			this.dialogVisible = false;
 		},
 		//分页时修改每页的行数
 		handleSizeChange(size){
