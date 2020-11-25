@@ -5,10 +5,16 @@ const app = new Vue({
 		students: [],
 		pageStudents: [],  //分页后当前页 学生数
 		inputStr: '',  //输入的查询条件
-		
 		// ===  分页相关变量 ===
-		dialogVisible: false,  //弹出框默认展示
-		studentForm: {
+		total: 0, //数据总行数
+		currentpage: 1, //当前所在页
+		pagesize: 10, //每页显示多少
+		// === 弹出框表单 ===
+		dialogVisible: false,  //控制弹出框表单是否展示，默认展示
+		dialogTitle: "",  //弹出框的标题
+		isView: false,    //标识是否是查看
+		isEdit: false,    //标识是否是修改
+		studentForm: {    //弹出框表单对应绑定的数据
 			sno:'',
 			name:'',
 			gender:'',
@@ -18,11 +24,33 @@ const app = new Vue({
 			address:'',
 			image:''
 		},
-		
-		// ===  分页相关变量 ===
-		total: 0, //数据总行数
-		currentpage: 1, //当前所在页
-		pagesize: 10, //每页显示多少
+		rules: {
+			sno: [
+				{ required: true, message: '学号不能为空', trigger: 'blur' },
+				{ pattern: /^[9][5]\d{3}$/, message: '学号必须是95开头的五位数', trigger: 'blur' },
+			],
+			name: [
+				{ required: true, message: '姓名不能为空', trigger: 'blur' },
+				{ pattern: /^[\u4e00-\u9fa5]{2,5}$/, message: '姓名必须是2-5个汉字', trigger: 'blur' },
+			],
+			gender: [
+				{ required: true, message: '性别不能为空', trigger: 'change' },
+			],
+			birthday: [
+				{ required: true, message: '出生日期不能为空', trigger: 'change' },
+			],
+			mobile: [
+				{ required: true, message: '手机号码不能为空', triggler: 'blur' },
+				{ pattern: /^[1][35789]\d{9}$/, message: '手机号码必须要符合规范', trigger: 'blur' },
+			],
+			email: [
+				{ required: true, message: '邮箱地址不能为空', trigger: 'blur' },
+				{ pattern: /^\w+([-+.]\w+)*@\w+([-.]\w+)*\.\w+([-.]\w+)*$/, message: '邮箱地址必须要符合规范', trigger: 'blur' },
+			],
+			address: [
+				{ required: true, message: '家庭住址不能为空', trigger: 'blur' },
+			],
+		},
 	},
 	mounted() {
 		//自动加载数据
@@ -115,16 +143,35 @@ const app = new Vue({
 		},
 		//添加学生信息时打开表单
 		addStudent(){
+			//修改标题
+			this.dialogTitle = " 添加学生明细";
+			//弹出表单
 			this.dialogVisible = true;
 		},
 		// 查看学生信息时打开表单
 		 viewStudent(row){
+			//修改标题
+			this.dialogTitle = "查看学生明细";
+			//修改 isView 变量
+			this.isView = true;
+			//弹出表单
 			this.dialogVisible = true;
 			// console.log(row);
 			//赋值 (浅拷贝有问题)
 			// this.studentForm = row;
 			//深拷贝方法：
 			// this.studentForm.sno = row.sno;
+			this.studentForm = JSON.parse(JSON.stringify(row))
+		},
+		// 修改学生明细
+		 updateStudent(row){
+			//修改标题
+			this.dialogTitle = "修改学生明细";
+			//修改 isEdit 变量
+			this.isEdit = true;
+			//弹出表单
+			this.dialogVisible = true;
+			//深拷贝方法：
 			this.studentForm = JSON.parse(JSON.stringify(row))
 		},
 		//关闭弹出框表单
@@ -139,6 +186,9 @@ const app = new Vue({
 			this.studentForm.address = '';
 			//关闭
 			this.dialogVisible = false;
+			// 初始化isView和isEdit的值
+			this.isEdit = false;
+			this.isView = false;
 		},
 		//分页时修改每页的行数
 		handleSizeChange(size){
