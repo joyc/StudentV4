@@ -21,4 +21,5 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('students/', views.get_students),  # 获取全部学生信息
     path('students/query/', views.query_students),  # 查询学生信息
+    path('sno/check/', views.is_exists_sno),  # 校验学号是否存在
 ]
