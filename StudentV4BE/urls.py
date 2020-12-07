@@ -22,4 +22,5 @@ urlpatterns = [
     path('students/', views.get_students),  # 获取全部学生信息
     path('students/query/', views.query_students),  # 查询学生信息
     path('sno/check/', views.is_exists_sno),  # 校验学号是否存在
+    path('student/add/', views.add_student),  # 添加学生信息的接口
 ]

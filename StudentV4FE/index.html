@@ -116,8 +116,8 @@
 								</el-col>
 							</el-row>
 							<!-- 弹出框显示学生详细信息 -->
-							<el-dialog :title="dialogTitle" :visible.sync="dialogVisible" width="50%" :close-on-click-modal="false" @close="closeDialogForm()">
-								<el-form :model="studentForm" :rules="rules" :inline="true" style="margin-left: 20px" label-width="110px" label-position="right" size="mini">
+							<el-dialog :title="dialogTitle" :visible.sync="dialogVisible" width="50%" :close-on-click-modal="false" @close="closeDialogForm('studentForm')">
+								<el-form :model="studentForm" :rules="rules" ref="studentForm" :inline="true" style="margin-left: 20px" label-width="110px" label-position="right" size="mini">
 									<el-form-item label="学号:" prop="sno">
 										<el-input v-model="studentForm.sno" :disabled="isView || isEdit" suffix-icon="el-icon-edit"></el-input>
 									</el-form-item>
@@ -131,7 +131,7 @@
 									    </el-select>
 									  </el-form-item>
 									<el-form-item label="出生日期:" prop="birthday">
-										<el-date-picker v-model="studentForm.birthday" :disabled="isView" type="date" placeholder="选择日期" style="width: 92%">
+										<el-date-picker v-model="studentForm.birthday" value-format="yyyy-MM-dd" :disabled="isView" type="date" placeholder="选择日期" style="width: 92%">
 										</el-date-picker>
 									</el-form-item>
 									<el-form-item label="手机号码:" prop="mobile">
@@ -145,8 +145,8 @@
 									</el-form-item>
 								</el-form>
 								<span slot="footer" class="dialog-footer">
-									<el-button type="primary" size="mini" v-show="!isView">确 定</el-button>
-								    <el-button type="info" size="mini" @click="closeDialogForm()">取 消</el-button>
+									<el-button type="primary" size="mini" v-show="!isView" @click="submitStudentForm('studentForm')">确 定</el-button>
+								    <el-button type="info" size="mini" @click="closeDialogForm('studentForm')">取 消</el-button>
 								</span>
 							</el-dialog>
 						</el-main>

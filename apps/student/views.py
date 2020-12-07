@@ -9,8 +9,9 @@ def get_students(request):
     """获取所有学生信息"""
     # 使用 ORM 获取所有学生信息
     try:
+        # 使用 ORM 获取所有学生信息并把对象转为字典格式
         obj_students = Student.objects.all().values()
-        # 把结果转为 list
+        # 把外层结果转为 list
         students = list(obj_students)
         return JsonResponse({'code': 1, 'data': students})
     except Exception as e:
@@ -48,3 +49,23 @@ def is_exists_sno(request):
             return JsonResponse({'code': 1, 'exists': True})
     except Exception as e:
         return JsonResponse({'code': 0, 'msg': '校验学号失败，错误信息为：' + str(e)})
+
+
+def add_student(request):
+    """添加学生到数据库"""
+    # 接受全段传过来的值
+    data = json.loads(request.body.decode('utf-8'))
+    try:
+        # 添加到数据库
+        obj_student = Student(sno=data['sno'], name=data['name'], gender=data['gender'],
+                              birthday=data['birthday'], mobile=data['mobile'],
+                              email=data['email'], address=data['address'])
+        # 执行添加操作
+        obj_student.save()
+        # 使用 ORM 获取所有学生信息并把对象转为字典格式
+        obj_students = Student.objects.all().values()
+        # 把外层结果转为 list
+        students = list(obj_students)
+        return JsonResponse({'code': 1, 'data': students})
+    except Exception as e:
+        return JsonResponse({'code': 0, 'msg': "添加到数据库出现异常，具体原因：" + str(e)})

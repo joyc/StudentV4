@@ -239,8 +239,68 @@ const app = new Vue({
 			//深拷贝方法：
 			this.studentForm = JSON.parse(JSON.stringify(row))
 		},
+		//提交学生的表单(添加，修改)
+		submitStudentForm(formName) {
+			this.$refs[formName].validate((valid) => {
+			  if (valid) {
+				//校验成功后执行添加或者修改
+				if (this.isEdit){
+					//修改
+					this.submitUpdateStudent();
+				} else {
+					//添加
+					this.submitAddStudent();
+				}
+
+			  } else {
+				console.log('error submit!!');
+				return false;
+			  }
+			});
+		},
+		//添加到数据库
+		submitAddStudent(){
+			// 定义 that
+			let that = this;
+			//执行 Axios 请求
+			axios
+			.post(that.baseURL + 'student/add/', that.studentForm)
+			.then(res => {
+				//执行成功
+				if (res.data.code == 1) {
+					//获取所有学生信息
+					 that.students = res.data.data;
+					//获取记录条数
+					that.total = res.data.data.length;
+					//获取分页信息
+					that.getPagetudents();
+					//提示
+					that.$message({
+						message: " 查询数据加载成功！",
+						type: "success"
+					});
+					//关闭窗体
+					that.closeDialogForm("studentForm");
+				} else {
+					//失败的提示
+					that.$message.error( res.data.msg);
+				}
+				
+			})
+			.catch(err=>{
+				// 执行失败
+				console.log(err);
+				that.$message.error("获取后端查询结果出现异常！");
+			})
+		},
+		//修改更新到数据库
+		 submitUpdateStudent(){
+			 
+		 },
 		//关闭弹出框表单
-		closeDialogForm() {
+		closeDialogForm(formName) {
+			// 重置表单的校验
+			this.$refs[formName].resetFields();
 			//清空
 			this.studentForm.sno = '';
 			this.studentForm.name = '';
