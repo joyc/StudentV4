@@ -3,6 +3,9 @@ const app = new Vue({
 	data() {
 		//校验学号是否存在
 		const rulesSNo = (rule, value, callback) => {
+			if (this.isEdit) {
+				callback();
+			}
 			//使用 Axios 进行校验
 			axios.post(
 					this.baseURL + 'sno/check/', {
@@ -61,7 +64,7 @@ const app = new Vue({
 						pattern: /^[9][5]\d{3}$/,
 						message: '学号必须是95开头的五位数',
 						trigger: 'blur'
-					},  //校验学号存在否
+					}, //校验学号存在否
 					{
 						validator: rulesSNo,
 						trigger: 'blur'
@@ -242,61 +245,132 @@ const app = new Vue({
 		//提交学生的表单(添加，修改)
 		submitStudentForm(formName) {
 			this.$refs[formName].validate((valid) => {
-			  if (valid) {
-				//校验成功后执行添加或者修改
-				if (this.isEdit){
-					//修改
-					this.submitUpdateStudent();
-				} else {
-					//添加
-					this.submitAddStudent();
-				}
+				if (valid) {
+					//校验成功后执行添加或者修改
+					if (this.isEdit) {
+						//修改
+						this.submitUpdateStudent();
+					} else {
+						//添加
+						this.submitAddStudent();
+					}
 
-			  } else {
-				console.log('error submit!!');
-				return false;
-			  }
+				} else {
+					console.log('error submit!!');
+					return false;
+				}
 			});
 		},
 		//添加到数据库
-		submitAddStudent(){
+		submitAddStudent() {
 			// 定义 that
 			let that = this;
 			//执行 Axios 请求
 			axios
-			.post(that.baseURL + 'student/add/', that.studentForm)
-			.then(res => {
-				//执行成功
-				if (res.data.code == 1) {
-					//获取所有学生信息
-					 that.students = res.data.data;
-					//获取记录条数
-					that.total = res.data.data.length;
-					//获取分页信息
-					that.getPagetudents();
-					//提示
-					that.$message({
-						message: " 查询数据加载成功！",
-						type: "success"
-					});
-					//关闭窗体
-					that.closeDialogForm("studentForm");
-				} else {
-					//失败的提示
-					that.$message.error( res.data.msg);
-				}
-				
-			})
-			.catch(err=>{
-				// 执行失败
-				console.log(err);
-				that.$message.error("获取后端查询结果出现异常！");
-			})
+				.post(that.baseURL + 'student/add/', that.studentForm)
+				.then(res => {
+					//执行成功
+					if (res.data.code == 1) {
+						//获取所有学生信息
+						that.students = res.data.data;
+						//获取记录条数
+						that.total = res.data.data.length;
+						//获取分页信息
+						that.getPagetudents();
+						//提示
+						that.$message({
+							message: "查询数据加载成功！",
+							type: "success"
+						});
+						//关闭窗体
+						that.closeDialogForm("studentForm");
+					} else {
+						//失败的提示
+						that.$message.error(res.data.msg);
+					}
+
+				})
+				.catch(err => {
+					// 执行失败
+					console.log(err);
+					that.$message.error("获取后端查询结果出现异常！");
+				})
 		},
 		//修改更新到数据库
-		 submitUpdateStudent(){
-			 
-		 },
+		submitUpdateStudent() {
+			// 定义 that
+			let that = this;
+			//执行 Axios 请求
+			axios
+				.post(that.baseURL + 'student/update/', that.studentForm)
+				.then(res => {
+					//执行成功
+					if (res.data.code == 1) {
+						//获取所有学生信息
+						that.students = res.data.data;
+						//获取记录条数
+						that.total = res.data.data.length;
+						//获取分页信息
+						that.getPagetudents();
+						//提示
+						that.$message({
+							message: "数据修改成功！",
+							type: "success"
+						});
+						//关闭窗体
+						that.closeDialogForm("studentForm");
+					} else {
+						//失败的提示
+						that.$message.error(res.data.msg);
+					}
+
+				})
+				.catch(err => {
+					// 执行失败
+					console.log(err);
+					that.$message.error("修改时获取后端查询结果出现异常！");
+				})
+		},
+		// 删除一条学生信息
+		deleteStudent(row) {
+			//等待确认
+			this.$confirm('是否确认删除学生信息【学号：' + row.sno + '\t 姓名：' + row.name + '】信息？',
+				'提示', {
+					confirmButtonText: '确定删除',
+					cancelButtonText: '取消',
+					type: 'warning'
+				}).then(() => {
+				// 确认删除响应事件
+				let that = this
+				//调用后端接口
+				axios.post(that.baseURL + 'student/delete/', {
+						sno: row.sno
+					})
+					.then(res => {
+						if (res.data.code === 1) {
+							//获取所有学生信息
+							that.students = res.data.data;
+							//获取记录数
+							that.total = res.data.data.length;
+							//分页
+							that.getPagetudents();
+							//提示
+							that.$message({
+								message: '数据添加成功！',
+								type: 'success'
+							});
+						} else {
+							that.$message.error(res.data.msg);
+						}
+
+					})
+			}).catch(() => {
+				this.$message({
+					type: 'info',
+					message: '已取消删除'
+				});
+			});
+		},
 		//关闭弹出框表单
 		closeDialogForm(formName) {
 			// 重置表单的校验

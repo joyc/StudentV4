@@ -23,4 +23,6 @@ urlpatterns = [
     path('students/query/', views.query_students),  # 查询学生信息
     path('sno/check/', views.is_exists_sno),  # 校验学号是否存在
     path('student/add/', views.add_student),  # 添加学生信息的接口
+    path('student/update/', views.update_student),  # 修改学生信息的接口
+    path('student/delete/', views.delete_student),  # 删除学生信息的接口
 ]

@@ -69,3 +69,46 @@ def add_student(request):
         return JsonResponse({'code': 1, 'data': students})
     except Exception as e:
         return JsonResponse({'code': 0, 'msg': "添加到数据库出现异常，具体原因：" + str(e)})
+
+
+def update_student(request):
+    """修改学生到数据库"""
+    # 接受全段传过来的值
+    data = json.loads(request.body.decode('utf-8'))
+    try:
+        # 查找要更新的学生信息
+        obj_student = Student.objects.get(sno=data['sno'])
+        # 依次修改
+        obj_student.name = data['name']
+        obj_student.gender = data['gender']
+        obj_student.birthday = data['birthday']
+        obj_student.mobile = data['mobile']
+        obj_student.email = data['email']
+        obj_student.address = data['address']
+        # 保存
+        obj_student.save()
+        # 使用 ORM 获取所有学生信息并把对象转为字典格式
+        obj_students = Student.objects.all().values()
+        # 把外层结果转为 list
+        students = list(obj_students)
+        return JsonResponse({'code': 1, 'data': students})
+    except Exception as e:
+        return JsonResponse({'code': 0, 'msg': "修改保存到数据库出现异常，具体原因：" + str(e)})
+
+
+def delete_student(request):
+    """删除学生到数据库"""
+    # 接受全段传过来的值
+    data = json.loads(request.body.decode('utf-8'))
+    try:
+        # 查找要更新的学生信息
+        obj_student = Student.objects.get(sno=data['sno'])
+        # 删除
+        obj_student.delete()
+        # 使用 ORM 获取所有学生信息并把对象转为字典格式
+        obj_students = Student.objects.all().values()
+        # 把外层结果转为 list
+        students = list(obj_students)
+        return JsonResponse({'code': 1, 'data': students})
+    except Exception as e:
+        return JsonResponse({'code': 0, 'msg': "删除学生信息出现异常，具体原因：" + str(e)})
