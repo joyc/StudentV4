@@ -77,7 +77,7 @@
 								</el-row>
 							</el-form>
 							<!-- 表格 -->
-							<el-table :data="pageStudents" border style="width: 100%" size="mini">
+							<el-table :data="pageStudents" border style="width: 100%" size="mini" @selection-change="handleSelectionChange">
 								<el-table-column type="selection">
 								</el-table-column>
 								<el-table-column type="index" label="序号" width="60">
@@ -107,7 +107,7 @@
 							<!-- 分页 -->
 							<el-row style="margin-top: 10px;">
 								<el-col :span="8" style="text-align: left">
-									<el-button type="primary" icon="el-icon-delete" size="mini">批量删除</el-button>
+									<el-button type="danger" icon="el-icon-delete" size="mini" @click="deleteStudents()">批量删除</el-button>
 								</el-col>
 								<el-col :span="16" style="text-align: right">
 									<el-pagination @size-change="handleSizeChange" @current-change="handleCurrentChange" :current-page="currentpage"

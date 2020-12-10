@@ -35,6 +35,8 @@ const app = new Vue({
 			students: [],
 			pageStudents: [], //分页后当前页 学生数
 			inputStr: '', //输入的查询条件
+			selectStudents: [], //选择复选框时把选择记录记录在此列表
+			
 			// ===  分页相关变量 ===
 			total: 0, //数据总行数
 			currentpage: 1, //当前所在页
@@ -356,7 +358,7 @@ const app = new Vue({
 							that.getPagetudents();
 							//提示
 							that.$message({
-								message: '数据添加成功！',
+								message: '数据删除成功！',
 								type: 'success'
 							});
 						} else {
@@ -371,6 +373,46 @@ const app = new Vue({
 				});
 			});
 		},
+		// 批量删除学生信息
+		deleteStudents() {
+			//等待确认
+			this.$confirm('是否确认批量删除' + this.selectStudents.length + '个学生信息吗？',
+				'提示', {
+					confirmButtonText: '确定删除',
+					cancelButtonText: '取消',
+					type: 'warning'
+				}).then(() => {
+				// 确认删除响应事件
+				let that = this
+				//调用后端接口
+				axios.post(that.baseURL + 'students/delete/', {
+						student: that.selectStudents
+					})
+					.then(res => {
+						if (res.data.code === 1) {
+							//获取所有学生信息
+							that.students = res.data.data;
+							//获取记录数
+							that.total = res.data.data.length;
+							//分页
+							that.getPagetudents();
+							//提示
+							that.$message({
+								message: '数据 批量删除成功！',
+								type: 'success'
+							});
+						} else {
+							that.$message.error(res.data.msg);
+						}
+
+					})
+			}).catch(() => {
+				this.$message({
+					type: 'info',
+					message: '已取消删除'
+				});
+			});
+		 },
 		//关闭弹出框表单
 		closeDialogForm(formName) {
 			// 重置表单的校验
@@ -403,6 +445,11 @@ const app = new Vue({
 			this.currentpage = pageNumber;
 			//数据重新分页
 			this.getPagetudents();
-		}
+		},
+		//选择复选框时触发的操作
+		handleSelectionChange(data) {
+			this.selectStudents = data;
+			console.log(data);
+		},
 	},
 })

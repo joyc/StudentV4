@@ -98,7 +98,7 @@ def update_student(request):
 
 def delete_student(request):
     """删除学生到数据库"""
-    # 接受全段传过来的值
+    # 接收全段传过来的值
     data = json.loads(request.body.decode('utf-8'))
     try:
         # 查找要更新的学生信息
@@ -111,4 +111,24 @@ def delete_student(request):
         students = list(obj_students)
         return JsonResponse({'code': 1, 'data': students})
     except Exception as e:
-        return JsonResponse({'code': 0, 'msg': "删除学生信息出现异常，具体原因：" + str(e)})
+        return JsonResponse({'code': 0, 'msg': "删除学生信息时出现异常，具体原因：" + str(e)})
+
+
+def delete_students(request):
+    """批量删除学生到数据库"""
+    # 接收全段传过来的值
+    data = json.loads(request.body.decode('utf-8'))
+    try:
+        # 遍历传递来的集合
+        for one_student in data['student']:
+            # 查询当前记录
+            obj_student = Student.objects.get(sno=one_student['sno'])
+            # 执行删除
+            obj_student.delete()
+        # 使用 ORM 获取所有学生信息并把对象转为字典格式
+        obj_students = Student.objects.all().values()
+        # 把外层结果转为 list
+        students = list(obj_students)
+        return JsonResponse({'code': 1, 'data': students})
+    except Exception as e:
+        return JsonResponse({'code': 0, 'msg': "批量删除学生信息时出现异常，具体原因：" + str(e)})
