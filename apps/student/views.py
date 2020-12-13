@@ -98,7 +98,7 @@ def update_student(request):
 
 def delete_student(request):
     """删除学生到数据库"""
-    # 接收全段传过来的值
+    # 接收前段传过来的值
     data = json.loads(request.body.decode('utf-8'))
     try:
         # 查找要更新的学生信息
@@ -116,7 +116,7 @@ def delete_student(request):
 
 def delete_students(request):
     """批量删除学生到数据库"""
-    # 接收全段传过来的值
+    # 接收前段传过来的值
     data = json.loads(request.body.decode('utf-8'))
     try:
         # 遍历传递来的集合

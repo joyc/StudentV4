@@ -36,7 +36,7 @@ const app = new Vue({
 			pageStudents: [], //分页后当前页 学生数
 			inputStr: '', //输入的查询条件
 			selectStudents: [], //选择复选框时把选择记录记录在此列表
-			
+			imageUrl: "", //学生头像的路径
 			// ===  分页相关变量 ===
 			total: 0, //数据总行数
 			currentpage: 1, //当前所在页
@@ -265,7 +265,7 @@ const app = new Vue({
 		},
 		//添加到数据库
 		submitAddStudent() {
-			// 定义 that
+			//定义 that
 			let that = this;
 			//执行 Axios 请求
 			axios
@@ -300,7 +300,7 @@ const app = new Vue({
 		},
 		//修改更新到数据库
 		submitUpdateStudent() {
-			// 定义 that
+			//定义 that
 			let that = this;
 			//执行 Axios 请求
 			axios
@@ -342,7 +342,7 @@ const app = new Vue({
 					cancelButtonText: '取消',
 					type: 'warning'
 				}).then(() => {
-				// 确认删除响应事件
+				//确认删除响应事件
 				let that = this
 				//调用后端接口
 				axios.post(that.baseURL + 'student/delete/', {
@@ -451,5 +451,18 @@ const app = new Vue({
 			this.selectStudents = data;
 			console.log(data);
 		},
+		// 图片上传前的提示
+		beforeAvatarUpload(file) {
+			const isJPG = file.type === 'image/jpeg';
+			const isLt2M = file.size / 1024 / 1024 < 2;
+
+			if (!isJPG) {
+			  this.$message.error('上传头像图片只能是 JPG 格式!');
+			}
+			if (!isLt2M) {
+			  this.$message.error('上传头像图片大小不能超过 2MB!');
+			}
+			return isJPG && isLt2M;
+		}
 	},
 })
