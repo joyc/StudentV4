@@ -17,6 +17,10 @@ from django.contrib import admin
 from django.urls import path
 from student import views
 
+from django.conf import settings
+from django.conf.urls.static import static
+
+
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('students/', views.get_students),  # 获取全部学生信息
@@ -26,5 +30,7 @@ urlpatterns = [
     path('student/update/', views.update_student),  # 修改学生信息的接口
     path('student/delete/', views.delete_student),  # 删除学生信息的接口
     path('students/delete/', views.delete_students),  # 批量删除学生信息的接口
+    path('upload/', views.upload),  # 上传文件的接口
 ]
-
+# 设置上传图片media文件的url
+urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

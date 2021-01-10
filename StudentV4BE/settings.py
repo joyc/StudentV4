@@ -29,6 +29,7 @@ DEBUG = True
 ALLOWED_HOSTS = ['10.37.129.2']
 
 
+
 # Application definition
 
 INSTALLED_APPS = [
@@ -129,8 +130,12 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/2.1/howto/static-files/
 
 STATIC_URL = '/static/'
+# 设置上传文件的目录和外部访问的路径
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media/')
+MEDIA_URL = '/media/'
 
 # cros-header 配置
+CORS_ORIGIN_ALLOW_ALL = True
 # 设置白名单
 CORS_ORIGIN_WHITELIST = ("http://10.37.129.2:8848",)
 # 设置 cros cookie

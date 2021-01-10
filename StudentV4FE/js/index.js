@@ -54,7 +54,8 @@ const app = new Vue({
 				mobile: '',
 				email: '',
 				address: '',
-				image: ''
+				image: '',
+				imageUrl: ''
 			},
 			rules: {
 				sno: [{
@@ -149,6 +150,7 @@ const app = new Vue({
 							message: '数据获取成功！',
 							type: 'success'
 						});
+						// console.log(that.students);
 					} else {
 						//失败的提示
 						that.$message.error(res.data.msg);
@@ -211,12 +213,22 @@ const app = new Vue({
 					that.$message.error("获取查询结果出现异常！");
 				})
 		},
-		//添加学生信息时打开表单
+		// 添加学生信息时打开表单
 		addStudent() {
 			//修改标题
 			this.dialogTitle = " 添加学生明细";
 			//弹出表单
 			this.dialogVisible = true;
+		},
+		//根据Id获取image
+		getImageBySno(sno) {
+			//遍历
+			for (oneStudent of this.students) {
+				//判断
+				if (oneStudent.sno == sno) {
+					return oneStudent.image;
+				}
+			}
 		},
 		// 查看学生信息时打开表单
 		viewStudent(row) {
@@ -232,6 +244,11 @@ const app = new Vue({
 			//深拷贝方法：
 			// this.studentForm.sno = row.sno;
 			this.studentForm = JSON.parse(JSON.stringify(row))
+			//获取照片
+			this.studentForm.image = this.getImageBySno(row.sno);
+			//获取照片URL
+			this.studentForm.imageUrl = this.baseURL + 'media/' + this.studentForm.image;
+			// console.log(this.studentForm.imageUrl);
 		},
 		// 修改学生明细
 		updateStudent(row) {
@@ -243,6 +260,10 @@ const app = new Vue({
 			this.dialogVisible = true;
 			//深拷贝方法：
 			this.studentForm = JSON.parse(JSON.stringify(row))
+			//获取照片
+			this.studentForm.image = this.getImageBySno(row.sno);
+			//获取照片URL
+			this.studentForm.imageUrl = this.baseURL + 'media/' + this.studentForm.image;
 		},
 		//提交学生的表单(添加，修改)
 		submitStudentForm(formName) {
@@ -425,11 +446,112 @@ const app = new Vue({
 			this.studentForm.mobile = '';
 			this.studentForm.email = '';
 			this.studentForm.address = '';
+			this.studentForm.image = '';
+			this.studentForm.imageUrl = '';
 			//关闭
 			this.dialogVisible = false;
 			// 初始化isView和isEdit的值
 			this.isEdit = false;
 			this.isView = false;
+		},
+		//选择学生头像后点击确定后触发的事件
+		uploadPicturePost(file) {
+			//定义that
+			let that = this;
+			//定义一个FormData类
+			let fileReq = new FormData();
+			//把照片传入
+			fileReq.append('avatar', file.file);
+			//使用Axios发起Ajax请求
+			axios(
+				{
+					method: 'post',
+					url: that.baseURL + 'upload/',
+					data: fileReq
+				}
+			).then(res => {
+				// 根据code判断是否成功
+				if (res.data.code === 1) {
+					//把照片给image 
+					that.studentForm.image = res.data.name;
+					//拼接imageurl 
+					that.studentForm.imageUrl = that.baseURL + "media/" + res.data.name;
+				} else {
+					//失败的提示！
+					that.$message.error(res.data.msg);
+				}
+
+			}).catch(err => {
+				console.log(err);
+				that.$message.error("上传头像出现异常！");
+			})
+
+		},
+		uploadExcelPost(file) {
+			let that = this
+			//实例化一个formdata
+			//定义一个FormData类
+			let fileReq = new FormData();
+			//把照片穿进去
+			fileReq.append('excel', file.file);
+			//使用Axios发起Ajax请求
+			axios(
+				{
+					method: 'post',
+					url: that.baseURL + 'excel/import/',
+					data: fileReq
+				}
+			).then(res => {
+				// 根据code判断是否成功
+				if (res.data.code === 1) {
+					//把照片给image 
+					that.students = res.data.data;
+					//计算总共多少条
+					that.total = res.data.data.length;
+					//分页
+					that.getPageStudents();
+					//弹出框体显示结果 
+					this.$alert('本次导入完成! 成功：' + res.data.success +'失败：'+ res.data.error 
+					, '导入结果展示', {
+						confirmButtonText: '确定',
+						callback: action => {
+							this.$message({
+								type: 'info',
+								message: "本次导入失败数量为：" + res.data.error + ",具体的学号："+res.data.errors,
+							});
+						}
+					});
+					//把失败明细打印
+					console.log("本次导入失败数量为：" + res.data.error + ",具体的学号：");
+					console.log(res.data.errors);
+				} else {
+					//失败的提示！
+					that.$message.error(res.data.msg);
+				}
+
+			}).catch(err => {
+				console.log(err);
+				that.$message.error("上传Excel出现异常！");
+			})
+
+		},
+		exportToExcel(){
+			let that = this
+			axios.get(that.baseURL + 'excel/export/')
+			.then(res=>{
+				if(res.data.code ===1){
+					//拼接excel 的完整URL
+					let url = that.baseURL + 'media/'+ res.data.name;
+					//下载
+					window.open(url);
+				} else {
+					that.$message.error("导出Excel出现异常！");
+				}
+			})
+			.catch(err=>{
+				console.log(err);
+			});
+
 		},
 		//分页时修改每页的行数
 		handleSizeChange(size) {

@@ -1,4 +1,9 @@
+import os
 import json
+import uuid
+import hashlib
+
+from django.conf import settings
 from django.db.models import Q
 from django.shortcuts import render
 from django.http import JsonResponse
@@ -59,7 +64,7 @@ def add_student(request):
         # 添加到数据库
         obj_student = Student(sno=data['sno'], name=data['name'], gender=data['gender'],
                               birthday=data['birthday'], mobile=data['mobile'],
-                              email=data['email'], address=data['address'])
+                              email=data['email'], address=data['address'], image=data['image'])
         # 执行添加操作
         obj_student.save()
         # 使用 ORM 获取所有学生信息并把对象转为字典格式
@@ -85,6 +90,7 @@ def update_student(request):
         obj_student.mobile = data['mobile']
         obj_student.email = data['email']
         obj_student.address = data['address']
+        obj_student.image = data['image']
         # 保存
         obj_student.save()
         # 使用 ORM 获取所有学生信息并把对象转为字典格式
@@ -132,3 +138,40 @@ def delete_students(request):
         return JsonResponse({'code': 1, 'data': students})
     except Exception as e:
         return JsonResponse({'code': 0, 'msg': "批量删除学生信息时出现异常，具体原因：" + str(e)})
+
+
+def upload(request):
+    """接收上传的文件"""
+    # 接收上传的文件(缓存中)
+    rev_file = request.FILES.get('avatar')  # 前段的名字 avatar
+    # 判断是否有文件
+    if not rev_file:
+        return JsonResponse({'code': 0, 'msg': '图片不存在！'})
+    # 获得唯一的名字：uuid + hash
+    new_name = get_random_str()
+    # 准备写入的 url
+    file_path = os.path.join(settings.MEDIA_ROOT, new_name + os.path.splitext(rev_file.name)[1])  # + 图片后缀
+    # 开始写入到磁盘
+    try:
+        f = open(file_path, 'wb')
+        # 多次写入
+        for i in rev_file.chunks():
+            f.write(i)
+        f.close()
+        return JsonResponse({'code': 1, 'name': new_name + os.path.splitext(rev_file.name)[1]})
+    except Exception as e:
+        return JsonResponse({'code': 0, 'msg': str(e)})
+
+
+def get_random_str():
+    """生成随即字符串"""
+    # 获取 uuid 的随机数
+    uuid_val = uuid.uuid4()
+    # 获取 uuid 的随即数字符串
+    uuid_str = str(uuid_val).encode('utf-8')
+    # 获取 md5 实例
+    md5 = hashlib.md5()
+    # 拿取 uuid 的 md5 摘要
+    md5.update(uuid_str)
+    # 返回固定长度的字符串
+    return md5.hexdigest()
