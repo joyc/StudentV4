@@ -66,7 +66,7 @@
 										</el-button-group>
 									</el-col>
 									<el-col :span="2">
-										<el-upload>
+										<el-upload :show-file-list="false" :http-request="uploadExcelPost">
 											<el-button type="primary" style="padding-right: 10px">导入Excel</el-button>
 											<!-- <div slot="tip" class="el-upload__tip">只能上传Excel文件，且不超过5000kb</div> -->
 										</el-upload>

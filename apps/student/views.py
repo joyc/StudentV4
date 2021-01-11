@@ -9,6 +9,8 @@ from django.shortcuts import render
 from django.http import JsonResponse
 from student.models import Student
 
+import openpyxl
+
 
 def get_students(request):
     """获取所有学生信息"""
@@ -175,3 +177,70 @@ def get_random_str():
     md5.update(uuid_str)
     # 返回固定长度的字符串
     return md5.hexdigest()
+
+
+def read_excel_dict(path:str):
+    """读取Excel数据存储为包含字典的列表"""
+    # 实例化一个 wb
+    workbook = openpyxl.load_workbook(path)
+    # 实例化 sheet
+    sheet = workbook['student']
+    # 定义一个变量存储最终数据 -- []
+    students = []
+    # 准备 key
+    keys = ['sno', 'name', 'gender', 'birthday', 'mobile', 'email', 'address']
+    # 遍历
+    for row in sheet.rows:
+        # 定义临时用的字典
+        temp_dict = {}
+        # 组合值和 key
+        for index, cell in enumerate(row):
+            temp_dict[keys[index]] = cell.value
+        # 添加到 list 中
+        students.append(temp_dict)
+    return students
+
+
+def import_students_excel(request):
+    """从Excel批量导入学生信息"""
+    # 1. 接收Excel文件存储到后端 media 文件
+    rev_file = request.FILES.get('excel')
+    if not rev_file:
+        return JsonResponse({'code': 0, 'msg': '文件不存在！'})
+    new_name = get_random_str()
+    file_path = os.path.join(settings.MEDIA_ROOT, new_name + os.path.splitext(rev_file.name)[1])
+    try:
+        f = open(file_path, 'wb')
+        for i in rev_file.chunks():
+            f.write(i)
+        f.close()
+    except Exception as e:
+        return JsonResponse({'code': 0, 'msg': str(e)})
+    # 2. 读取存储在 media 文件的数据
+    ex_students = read_excel_dict(file_path)
+    # 3. 读取数据存储到数据库
+    # 定义变量success error
+    success = 0
+    error = 0
+    error_snos = []
+    # 开始遍历
+    for one_student in ex_students:
+        try:
+            # obj_student = Student(sno=one_student['sno'],
+            # 上面默认是更新+创建所以重复导入不会报错会更新，可以用下面的
+            obj_student = Student.objects.create(sno=one_student['sno'],
+                                                 name=one_student['name'],
+                                                 gender=one_student['gender'],
+                                                 birthday=one_student['birthday'],
+                                                 mobile=one_student['mobile'],
+                                                 email=one_student['email'],
+                                                 address=one_student['address'])
+            obj_student.save()  # 保存
+            success += 1  # 计数
+        except:
+            error += 1
+            error_snos.append(one_student['sno'])
+    # 4. 返回要导入的所有学生信息（成功条数，失败的学号）
+    obj_student = Student.objects.all().values()
+    students = list(obj_student)
+    return JsonResponse({'code': 1, 'success': success, 'error': error, 'errors': error_snos, 'data': students})

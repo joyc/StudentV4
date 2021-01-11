@@ -492,7 +492,7 @@ const app = new Vue({
 			//实例化一个formdata
 			//定义一个FormData类
 			let fileReq = new FormData();
-			//把照片穿进去
+			//把照片传进去
 			fileReq.append('excel', file.file);
 			//使用Axios发起Ajax请求
 			axios(
@@ -509,7 +509,7 @@ const app = new Vue({
 					//计算总共多少条
 					that.total = res.data.data.length;
 					//分页
-					that.getPageStudents();
+					that.getPagetudents();
 					//弹出框体显示结果 
 					this.$alert('本次导入完成! 成功：' + res.data.success +'失败：'+ res.data.error 
 					, '导入结果展示', {
@@ -517,7 +517,7 @@ const app = new Vue({
 						callback: action => {
 							this.$message({
 								type: 'info',
-								message: "本次导入失败数量为：" + res.data.error + ",具体的学号："+res.data.errors,
+								message: "本次导入失败数量为：" + res.data.error + ",具体的学号：" + res.data.errors,
 							});
 						}
 					});
@@ -528,7 +528,6 @@ const app = new Vue({
 					//失败的提示！
 					that.$message.error(res.data.msg);
 				}
-
 			}).catch(err => {
 				console.log(err);
 				that.$message.error("上传Excel出现异常！");
