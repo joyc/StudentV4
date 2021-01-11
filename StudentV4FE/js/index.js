@@ -538,19 +538,18 @@ const app = new Vue({
 			let that = this
 			axios.get(that.baseURL + 'excel/export/')
 			.then(res=>{
-				if(res.data.code ===1){
-					//拼接excel 的完整URL
-					let url = that.baseURL + 'media/'+ res.data.name;
+				if(res.data.code === 1){
+					//拼接 excel 的完整 URL
+					let url = that.baseURL + 'media/' + res.data.name;
 					//下载
-					window.open(url);
+					window.open(url)
 				} else {
-					that.$message.error("导出Excel出现异常！");
+					that.$message.error("导出Excel出现异常！")
 				}
 			})
 			.catch(err=>{
 				console.log(err);
 			});
-
 		},
 		//分页时修改每页的行数
 		handleSizeChange(size) {

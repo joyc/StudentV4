@@ -31,7 +31,8 @@ urlpatterns = [
     path('student/delete/', views.delete_student),  # 删除学生信息的接口
     path('students/delete/', views.delete_students),  # 批量删除学生信息的接口
     path('upload/', views.upload),  # 上传文件的接口
-    path('excel/import/', views.import_students_excel),  # 导入 Excel 文件
+    path('excel/import/', views.import_students_excel),  # 导入Excel文件
+    path('excel/export/', views.export_student_excel),  # 导出Excel文件
 ]
 # 设置上传图片media文件的url
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

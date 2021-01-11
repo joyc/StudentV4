@@ -244,3 +244,37 @@ def import_students_excel(request):
     obj_student = Student.objects.all().values()
     students = list(obj_student)
     return JsonResponse({'code': 1, 'success': success, 'error': error, 'errors': error_snos, 'data': students})
+
+
+def export_student_excel(request):
+    """导出数据到excel"""
+    # 获取所有的学生信息
+    obj_students = Student.objects.all().values()
+    # 转为 list
+    students = list(obj_students)
+    # 定义文件名
+    excel_name = get_random_str() + '.xlsx'
+    # 准备写入的路径
+    path = os.path.join(settings.MEDIA_ROOT, excel_name)
+    write_to_excel(students, path)
+    # 返回
+    return JsonResponse({'code': 1, 'name': excel_name})
+
+
+def write_to_excel(data:list, path:str):
+    """导出数据库数据并写入到excel"""
+    # 实例化 workbook
+    workbook = openpyxl.Workbook()
+    # 激活一个 sheet
+    sheet = workbook.active
+    # 命名 sheet
+    sheet.title = 'student'
+    # 准备 keys
+    keys = data[0].keys()
+    # 准备写入数据
+    for index, item in enumerate(data):
+        # 遍历每个元素
+        for k, v in enumerate(keys):
+            sheet.cell(row=index + 1, column=k + 1, value=str(item[v]))
+    # 写入到文件
+    workbook.save(path)
